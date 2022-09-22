@@ -3,7 +3,6 @@ import json
 import copy
 import threading
 import requests
-import base64
 import socketserver
 
 if ctypes.sizeof(ctypes.c_void_p) == ctypes.sizeof(ctypes.c_ulonglong):
@@ -79,6 +78,14 @@ class WECHAT_HTTP_APIS:
     # log
     WECHAT_LOG_START_HOOK = 36                  # 开启日志信息HOOK
     WECHAT_LOG_STOP_HOOK = 37                   # 关闭日志信息HOOK
+
+    # browser
+    WECHAT_BROWSER_OPEN_WITH_URL = 38           # 打开微信内置浏览器
+    WECHAT_GET_PUBLIC_MSG = 39                  # 获取公众号历史消息
+
+    WECHAT_MSG_FORWARD_MESSAGE = 40             # 转发消息
+    WECHAT_GET_QRCODE_IMAGE = 41                # 获取二维码
+    WECHAT_GET_A8KEY = 42
 
 APIS = WECHAT_HTTP_APIS
 
@@ -177,6 +184,14 @@ class WECHAT_HTTP_API_PARAM_TEMPLATES:
         # log
         APIS.WECHAT_LOG_START_HOOK: {},
         APIS.WECHAT_LOG_STOP_HOOK: {},
+
+        # browser
+        APIS.WECHAT_BROWSER_OPEN_WITH_URL: {"url": "https://www.baidu.com/"},
+        APIS.WECHAT_GET_PUBLIC_MSG: {"public_id": "","offset": ""},
+
+        APIS.WECHAT_MSG_FORWARD_MESSAGE: {"wxid": "filehelper","msgid": 2 ** 64 - 1},
+        APIS.WECHAT_GET_QRCODE_IMAGE: {},
+        APIS.WECHAT_GET_A8KEY: {"url":""}
     }
 
     def get_http_template(self, api_number):
@@ -212,11 +227,8 @@ class ReceiveMsgSocketServer(socketserver.BaseRequestHandler):
 
     @staticmethod
     def msg_callback(msg):
-        # 附加信息是protobuf格式，需要自行处理
-        msg['extrainfo'] = base64.b64decode(msg['extrainfo'])
-        # TODO: 在这里写额外的消息处理逻辑
-
         print(msg)
+        # TODO: 在这里写额外的消息处理逻辑
 
 def post_wechat_http_api(api,port,data = {}):
     url = "http://127.0.0.1:{}/api/?type={}".format(port,api)
@@ -259,7 +271,7 @@ def start_socket_server(port: int = 10808,
         print(e)
     return None
 
-def test(test_port):
+def test_send_msg(test_port):
     post_wechat_http_api(APIS.WECHAT_LOG_START_HOOK,port = test_port)
     if post_wechat_http_api(APIS.WECHAT_IS_LOGIN,port = test_port)["is_login"] == 1:
         print(post_wechat_http_api(APIS.WECHAT_GET_SELF_INFO,port = test_port))
@@ -282,17 +294,42 @@ def test(test_port):
                 "url":"https://www.baidu.com/",
                 "img_path":""}
         post_wechat_http_api(APIS.WECHAT_MSG_SEND_ARTICLE,data = data,port = test_port)
-
         print(post_wechat_http_api(APIS.WECHAT_CONTACT_GET_LIST,port = test_port))
         data = {"wxid":"filehelper"}
         print(post_wechat_http_api(APIS.WECHAT_CONTACT_CHECK_STATUS,data = data,port = test_port))
-        dbs = post_wechat_http_api(APIS.WECHAT_DATABASE_GET_HANDLES,port = test_port)
-        db_handle = dbs['data'][0]['handle']
-        sql = "select * from Contact limit 1;"
-        data = {"db_handle":db_handle,"sql":sql}
-        res = post_wechat_http_api(APIS.WECHAT_DATABASE_QUERY,data = data,port = test_port)
-        print(res)
     post_wechat_http_api(APIS.WECHAT_LOG_STOP_HOOK,port = test_port)
+
+def test_get_public_msg(test_port,public_id):
+    import time
+    param = {"public_id": public_id,"offset": ""}
+    data = post_wechat_http_api(APIS.WECHAT_GET_PUBLIC_MSG,test_port,param)
+    msg_list = json.loads(data['msg'])['MsgList']
+    next_offset = msg_list['PagingInfo']['Offset']
+    for msg in msg_list['Msg']:
+        detail_info = msg['AppMsg']['DetailInfo']
+        for info in detail_info:
+            Title = info['Title']
+            Digest = info['Digest']
+            ContentUrl = info['ContentUrl']
+            a8key_dict = post_wechat_http_api(APIS.WECHAT_GET_A8KEY,
+                                              port = test_port,
+                                              data = {"url":ContentUrl})
+            print(a8key_dict)
+            post_wechat_http_api(APIS.WECHAT_BROWSER_OPEN_WITH_URL,
+                                 test_port,
+                                 {"url":ContentUrl}
+                                 )
+            time.sleep(3)
+            break
+        break
+
+def test_get_chatroom_list_from_db(test_port):
+    dbs = post_wechat_http_api(APIS.WECHAT_DATABASE_GET_HANDLES,port = test_port)
+    db_handle = [i for i in dbs['data'] if i['db_name'] == 'MicroMsg.db'][0]['handle']
+    sql = "select UserName,Alias,EncryptUserName,Type,VerifyFlag,Remark,NickName,ChatRoomType,ExtraBuf from Contact where Type=2;"
+    data = {"db_handle":db_handle,"sql":sql}
+    res = post_wechat_http_api(APIS.WECHAT_DATABASE_QUERY,data = data,port = test_port)
+    return res['data']
 
 if __name__ == '__main__':
     port = 8000
@@ -301,6 +338,7 @@ if __name__ == '__main__':
         pids.append(new_wechat())
     start_listen(pids[0],port)
     post_wechat_http_api(APIS.WECHAT_LOG_START_HOOK,8000)
+    print(post_wechat_http_api(APIS.WECHAT_GET_SELF_INFO, 8000))
     post_wechat_http_api(APIS.WECHAT_MSG_START_HOOK,8000,{"port":10808})
     start_socket_server()
     stop_listen(pids[0])

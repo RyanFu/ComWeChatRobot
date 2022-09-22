@@ -9,7 +9,6 @@ Created on Thu Feb 24 16:19:48 2022
 import os
 import ctypes
 import json
-import base64
 import ctypes.wintypes
 import socketserver
 import threading
@@ -53,7 +52,6 @@ class WeChatEventSink:
 
     def OnGetMessageEvent(self, msg):
         msg = json.loads(msg)
-        msg['extrainfo'] = base64.b64decode(msg['extrainfo'])
         print(msg)
 
 
@@ -84,7 +82,6 @@ class ReceiveMsgBaseServer(socketserver.BaseRequestHandler):
 
     @staticmethod
     def msg_callback(msg):
-        msg['extrainfo'] = base64.b64decode(msg['extrainfo'])
         # 主线程中已经注入，此处禁止调用StartService和StopService
         robot = comtypes.client.CreateObject("WeChatRobot.CWeChatRobot")
         event = comtypes.client.CreateObject("WeChatRobot.RobotEvent")
@@ -965,7 +962,7 @@ class WeChatRobot:
         """
         return self.robot.CGetChatRoomMemberNickname(self.pid, chatroom_id, wxid)
 
-    def DelChatRoomMember(self, chatroom_id: str, wxid_list: str or list or tuple) -> str:
+    def DelChatRoomMember(self, chatroom_id: str, wxid_list: str or list or tuple) -> int:
         """
         删除群成员.请确认具有相关权限再调用。
 
@@ -984,7 +981,7 @@ class WeChatRobot:
         """
         return self.robot.CDelChatRoomMember(self.pid, chatroom_id, wxid_list)
 
-    def AddChatRoomMember(self, chatroom_id: str, wxid_list: str or list or tuple) -> str:
+    def AddChatRoomMember(self, chatroom_id: str, wxid_list: str or list or tuple) -> int:
         """
         添加群成员.请确认具有相关权限再调用。
 
@@ -1002,6 +999,107 @@ class WeChatRobot:
 
         """
         return self.robot.CAddChatRoomMember(self.pid, chatroom_id, wxid_list)
+
+    def OpenBrowser(self,url: str) -> int:
+        """
+        打开微信内置浏览器
+
+        Parameters
+        ----------
+        url : str
+            目标网页url.
+
+        Returns
+        -------
+        int
+            成功返回0,失败返回非0值.
+
+        """
+        return self.robot.COpenBrowser(self.pid,url)
+
+    def GetHistoryPublicMsg(self,public_id:str,offset:str = "") -> str:
+        """
+        获取公众号历史消息，一次获取十条推送记录
+
+        Parameters
+        ----------
+        public_id : str
+            公众号id.
+        offset : str, optional
+            起始偏移，为空的话则从新到久获取十条，该值可从返回数据中取得. The default is "".
+
+        Returns
+        -------
+        str
+            成功返回json数据，失败返回错误信息或空字符串.
+
+        """
+        ret = self.robot.CGetHistoryPublicMsg(self.pid,public_id,offset)[0]
+        try:
+            ret = json.loads(ret)
+        except json.JSONDecodeError:
+            pass
+        return ret
+
+    def ForwardMessage(self,wxid:str,msgid:int) -> int:
+        """
+        转发消息，只支持单条转发
+
+        Parameters
+        ----------
+        wxid : str
+            消息接收人wxid.
+        msgid : int
+            消息id，可以在实时消息接口中获取.
+
+        Returns
+        -------
+        int
+            成功返回0，失败返回非0值.
+
+        """
+        return self.robot.CForwardMessage(self.pid,wxid,msgid)
+
+    def GetQrcodeImage(self) -> bytes:
+        """
+        获取二维码，同时切换到扫码登录
+
+        Returns
+        -------
+        bytes
+            二维码bytes数据.
+        You can convert it to image object,like this:
+        >>> from io import BytesIO
+        >>> from PIL import Image
+        >>> buf = wx.GetQrcodeImage()
+        >>> image = Image.open(BytesIO(buf)).convert("L")
+        >>> image.save('./qrcode.png')
+
+        """
+        data = self.robot.CGetQrcodeImage(self.pid)
+        return bytes(data)
+
+    def GetA8Key(self,url:str) -> dict or str:
+        """
+        获取A8Key
+
+        Parameters
+        ----------
+        url : str
+            公众号文章链接.
+
+        Returns
+        -------
+        dict
+            成功返回A8Key信息，失败返回空字符串.
+
+        """
+        ret = self.robot.CGetA8Key(self.pid,url)
+        try:
+            ret = json.loads(ret)
+        except json.JSONDecodeError:
+            pass
+        return ret
 
 
 def get_wechat_pid_list() -> list:

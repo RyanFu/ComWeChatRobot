@@ -116,6 +116,24 @@
     <Filter Include="template">
       <UniqueIdentifier>{fdd967bf-e9c0-4793-80a1-dcb87b061fc6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="浏览器相关">
+      <UniqueIdentifier>{12952462-2a85-4d25-9361-e6bbf47079e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="浏览器相关\打开浏览器">
+      <UniqueIdentifier>{2f7581a1-536b-426a-af04-00fa2c356a73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="浏览器相关\获取公众号历史消息">
+      <UniqueIdentifier>{e54ac438-bc4e-46cf-9450-502e35daf385}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="发送消息\转发消息">
+      <UniqueIdentifier>{f44839a7-3cf0-415f-886e-22a8635c3dbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="二维码">
+      <UniqueIdentifier>{fb5a07d9-648d-4e1c-aed3-158f872c3d3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="浏览器相关\获取A8Key">
+      <UniqueIdentifier>{caeac105-0e3b-497e-a73e-f1233b3888aa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -241,6 +259,21 @@
     <ClInclude Include="utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="OpenBrowser.h">
+      <Filter>浏览器相关\打开浏览器</Filter>
+    </ClInclude>
+    <ClInclude Include="GetHistoryPublicMsg.h">
+      <Filter>浏览器相关\获取公众号历史消息</Filter>
+    </ClInclude>
+    <ClInclude Include="ForwardMessage.h">
+      <Filter>发送消息\转发消息</Filter>
+    </ClInclude>
+    <ClInclude Include="GetQrcodeImage.h">
+      <Filter>二维码</Filter>
+    </ClInclude>
+    <ClInclude Include="GetA8Key.h">
+      <Filter>浏览器相关\获取A8Key</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WeChatRobotCOM.cpp">
@@ -365,6 +398,21 @@
     </ClCompile>
     <ClCompile Include="templatefunc.cpp">
       <Filter>template</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenBrowser.cpp">
+      <Filter>浏览器相关\打开浏览器</Filter>
+    </ClCompile>
+    <ClCompile Include="GetHistoryPublicMsg.cpp">
+      <Filter>浏览器相关\获取公众号历史消息</Filter>
+    </ClCompile>
+    <ClCompile Include="ForwardMessage.cpp">
+      <Filter>发送消息\转发消息</Filter>
+    </ClCompile>
+    <ClCompile Include="GetQrcodeImage.cpp">
+      <Filter>二维码</Filter>
+    </ClCompile>
+    <ClCompile Include="GetA8Key.cpp">
+      <Filter>浏览器相关\获取A8Key</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

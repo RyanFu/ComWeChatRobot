@@ -1,4 +1,5 @@
 #pragma once
+#include "wxsignal.h"
 #include "SendImage.h"
 #include "SendText.h"
 #include "SendFile.h"
@@ -28,6 +29,11 @@
 #include "SetChatRoomSelfNickname.h"
 #include "SetChatRoomName.h"
 #include "GetChatRoomMemberNickname.h"
+#include "OpenBrowser.h"
+#include "GetHistoryPublicMsg.h"
+#include "ForwardMessage.h"
+#include "GetQrcodeImage.h"
+#include "GetA8Key.h"
 
 using namespace std;
 #pragma comment(lib, "version.lib")

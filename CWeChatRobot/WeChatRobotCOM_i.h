@@ -334,6 +334,32 @@ EXTERN_C const IID IID_IWeChatRobot;
             /* [in] */ VARIANT *wxids,
             /* [retval][out] */ int *__result) = 0;
         
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE COpenBrowser( 
+            /* [in] */ DWORD pid,
+            /* [in] */ BSTR url,
+            /* [retval][out] */ int *__result) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE CGetHistoryPublicMsg( 
+            /* [in] */ DWORD pid,
+            /* [in] */ BSTR PublicId,
+            /* [in] */ BSTR Offset,
+            /* [retval][out] */ VARIANT *__result) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE CForwardMessage( 
+            /* [in] */ DWORD pid,
+            /* [in] */ BSTR wxid,
+            /* [in] */ unsigned long long localId,
+            /* [retval][out] */ int *__result) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE CGetQrcodeImage( 
+            /* [in] */ DWORD pid,
+            /* [retval][out] */ VARIANT *__result) = 0;
+        
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE CGetA8Key( 
+            /* [in] */ DWORD pid,
+            /* [in] */ BSTR url,
+            /* [retval][out] */ BSTR *__result) = 0;
+        
     };
     
     
@@ -654,6 +680,37 @@ EXTERN_C const IID IID_IWeChatRobot;
             /* [in] */ VARIANT *wxids,
             /* [retval][out] */ int *__result);
         
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *COpenBrowser )( 
+            IWeChatRobot * This,
+            /* [in] */ DWORD pid,
+            /* [in] */ BSTR url,
+            /* [retval][out] */ int *__result);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *CGetHistoryPublicMsg )( 
+            IWeChatRobot * This,
+            /* [in] */ DWORD pid,
+            /* [in] */ BSTR PublicId,
+            /* [in] */ BSTR Offset,
+            /* [retval][out] */ VARIANT *__result);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *CForwardMessage )( 
+            IWeChatRobot * This,
+            /* [in] */ DWORD pid,
+            /* [in] */ BSTR wxid,
+            /* [in] */ unsigned long long localId,
+            /* [retval][out] */ int *__result);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *CGetQrcodeImage )( 
+            IWeChatRobot * This,
+            /* [in] */ DWORD pid,
+            /* [retval][out] */ VARIANT *__result);
+        
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE *CGetA8Key )( 
+            IWeChatRobot * This,
+            /* [in] */ DWORD pid,
+            /* [in] */ BSTR url,
+            /* [retval][out] */ BSTR *__result);
+        
         END_INTERFACE
     } IWeChatRobotVtbl;
 
@@ -815,6 +872,21 @@ EXTERN_C const IID IID_IWeChatRobot;
 
 #define IWeChatRobot_CAddChatRoomMember(This,pid,chatroomid,wxids,__result)	\
     ( (This)->lpVtbl -> CAddChatRoomMember(This,pid,chatroomid,wxids,__result) ) 
+
+#define IWeChatRobot_COpenBrowser(This,pid,url,__result)	\
+    ( (This)->lpVtbl -> COpenBrowser(This,pid,url,__result) ) 
+
+#define IWeChatRobot_CGetHistoryPublicMsg(This,pid,PublicId,Offset,__result)	\
+    ( (This)->lpVtbl -> CGetHistoryPublicMsg(This,pid,PublicId,Offset,__result) ) 
+
+#define IWeChatRobot_CForwardMessage(This,pid,wxid,localId,__result)	\
+    ( (This)->lpVtbl -> CForwardMessage(This,pid,wxid,localId,__result) ) 
+
+#define IWeChatRobot_CGetQrcodeImage(This,pid,__result)	\
+    ( (This)->lpVtbl -> CGetQrcodeImage(This,pid,__result) ) 
+
+#define IWeChatRobot_CGetA8Key(This,pid,url,__result)	\
+    ( (This)->lpVtbl -> CGetA8Key(This,pid,url,__result) ) 
 
 #endif /* COBJMACROS */
 
